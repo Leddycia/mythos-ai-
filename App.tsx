@@ -1,8 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
-import { STORY_GENRES, AGE_GROUPS, IMAGE_STYLES, LANGUAGES, MEDIA_TYPES, VIDEO_FORMATS, APP_NAME } from './constants';
+import { STORY_GENRES, AGE_GROUPS, IMAGE_STYLES, LANGUAGES, MEDIA_TYPES, VIDEO_FORMATS } from './constants';
 import { StoryRequest, GeneratedStory, StoryGenre, AgeGroup, ImageStyle, MediaType, HistoryItem, VideoFormat, ChatMessage } from './types';
-import { generateFullStory } from './services/geminiService';
+// MODIFICATION ICI : Import du service OpenAI
+import { generateFullStory } from './services/openAiService'; 
+
 import Button from './components/Button';
 import Input from './components/Input';
 import Select from './components/Select';
@@ -14,14 +15,6 @@ import Sidebar from './components/Sidebar';
 import ImageGallery from './components/ImageGallery';
 import SettingsPage from './components/SettingsPage';
 import LoadingBot from './components/LoadingBot';
-
-// Extend window interface for Google AI Studio specific features
-declare global {
-  interface AIStudio {
-    hasSelectedApiKey: () => Promise<boolean>;
-    openSelectKey: () => Promise<void>;
-  }
-}
 
 interface UserSession {
   email: string;
@@ -136,11 +129,12 @@ const App: React.FC = () => {
       localStorage.setItem('mythos_history', JSON.stringify(updatedHistory));
       setHistory(updatedHistory);
     } catch (e: any) {
-      // Gestion erreur quota...
+      console.error("Erreur sauvegarde historique", e);
     }
   };
 
   const handleGenerate = async () => {
+    // Construction de l'objet requête
     const request: StoryRequest = {
         topic,
         genre,
@@ -163,10 +157,13 @@ const App: React.FC = () => {
     setChatHistory([]); // Reset chat for new story
 
     try {
+      // Appel au service OpenAI
       const result = await generateFullStory(request);
+      
       setStory(result);
       saveToHistory(result, request);
     } catch (e: any) {
+      console.error("Erreur génération:", e);
       setError(e.message || "Une erreur est survenue lors de la création.");
     } finally {
       setLoading(false);
@@ -185,7 +182,6 @@ const App: React.FC = () => {
 
     try {
         // 2. Prepare context for AI
-        // Initial context + current chat history + new message
         const conversationContext = [
             { role: 'ai', text: story.content }, // Initial lesson content
             ...chatHistory.map(m => ({ role: m.role, text: m.role === 'user' ? m.content : m.aiResponse?.content || '' })),
@@ -207,7 +203,7 @@ const App: React.FC = () => {
 
     } catch (e) {
         console.error("Chat error", e);
-        // Add error message to chat?
+        // Optionnel : Ajouter un message d'erreur dans le chat
     } finally {
         setLoading(false);
     }

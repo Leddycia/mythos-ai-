@@ -50,11 +50,12 @@ export const APP_NAME = "MythosAI";
 // --- SÉCURITÉ & API ---
 // Note : Les clés doivent être définies dans .env.local (local) et dans Vercel Settings (production)
 
-// Google Gemini
-// Utilisation d'une chaine vide par défaut pour éviter le crash 'undefined'
-export const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+// OpenAI (Remplace Gemini)
+export const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || "";
+// Modèles recommandés : 'gpt-4o' (Rapide et intelligent) ou 'gpt-3.5-turbo' (Moins cher)
+export const OPENAI_MODEL = "gpt-4o";
 
-// ElevenLabs
+// ElevenLabs (Audio)
 export const ELEVENLABS_API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY || "";
 export const ELEVENLABS_VOICE_ID = import.meta.env.VITE_ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM';
 
